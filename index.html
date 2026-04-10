@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Basket Tracker">
+<title>Basket Tracker</title>
+<style>
+:root{--bg:#fff;--bg2:#f5f4f0;--bg3:#eeece8;--text:#1a1a18;--text2:#6b6a65;--text3:#9e9d99;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);--green:#1D9E75;--green-bg:#EAF3DE;--green-text:#3B6D11;--red:#E24B4A;--red-bg:#FCEBEB;--red-text:#A32D2D;--blue:#378ADD;--blue-bg:#E6F1FB;--blue-text:#185FA5;--amber-bg:#FAEEDA;--amber-text:#854F0B;--r:10px;--rl:14px;--sb:env(safe-area-inset-bottom,0px);}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--text:#f0efe9;--text2:#9e9d98;--text3:#6b6a66;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);--green-bg:#173404;--green-text:#97C459;--red-bg:#501313;--red-text:#F09595;--blue-bg:#042C53;--blue-text:#85B7EB;--amber-bg:#412402;--amber-text:#FAC775;}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520px;margin:0 auto;}
+.topbar{padding:12px 16px 10px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg);gap:8px;}
+.topbar-title{font-size:17px;font-weight:600;letter-spacing:-0.3px;}
+.topbar-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 16px;}
+.bottomnav{display:flex;border-top:0.5px solid var(--border);background:var(--bg);flex-shrink:0;padding-bottom:var(--sb);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;color:var(--text3);border:none;background:none;font-family:inherit;}
+.nav-item.active{color:var(--text);}
+.nav-icon{font-size:20px;line-height:1;margin-bottom:3px;}
+.nav-label{font-size:10px;font-weight:500;}
+.panel{display:none;padding-top:16px;}
+.panel.active{display:block;}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:10px;}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.m{background:var(--bg2);border-radius:var(--r);padding:12px 14px;}
+.ml{font-size:11px;color:var(--text2);margin-bottom:4px;}
+.mv{font-size:20px;font-weight:600;letter-spacing:-0.5px;}
+.ms{font-size:11px;color:var(--text3);margin-top:2px;}
+.upload-btn{width:100%;background:var(--bg2);border:1.5px dashed var(--border2);border-radius:var(--rl);padding:24px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:12px;}
+.upload-btn:active{background:var(--bg3);}
+.uiw{width:48px;height:48px;background:var(--blue-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.divider{display:flex;align-items:center;gap:12px;margin:12px 0;color:var(--text3);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:0.5px;background:var(--border);}
+.fi{width:100%;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:15px;color:var(--text);font-family:inherit;-webkit-appearance:none;outline:none;}
+.fi:focus{border-color:var(--blue);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ia{background:var(--bg2);border-radius:var(--rl);padding:12px;margin-bottom:10px;}
+.ia-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;}
+.ia-r1{display:grid;grid-template-columns:1fr 85px;gap:8px;margin-bottom:8px;}
+.ia-r2{display:grid;grid-template-columns:1fr 75px;gap:8px;margin-bottom:10px;}
+.addbtn{background:var(--text);color:var(--bg);border:none;border-radius:var(--r);padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;}
+.addbtn:active{opacity:0.8;}
+.chip{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r);padding:8px 12px;margin-bottom:6px;}
+.chip-name{font-size:14px;font-weight:500;}
+.chip-meta{font-size:11px;color:var(--text3);margin-top:1px;}
+.chip-r{display:flex;align-items:center;gap:10px;}
+.chip-price{font-size:14px;font-weight:600;}
+.rx{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;}
+.btn{font-family:inherit;font-size:15px;font-weight:600;padding:12px 20px;border-radius:var(--r);cursor:pointer;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);width:100%;margin-bottom:8px;}
+.btn:active{opacity:0.75;}
+.btn-p{background:var(--text);color:var(--bg);border-color:var(--text);}
+.btn-sm{padding:7px 12px;font-size:13px;width:auto;margin:0;}
+.btn-d{background:var(--red-bg);color:var(--red-text);border-color:transparent;}
+.btn-w{background:var(--amber-bg);color:var(--amber-text);border-color:transparent;}
+.pb{border-radius:var(--r);padding:11px 14px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.pb-b{background:var(--blue-bg);color:var(--blue-text);}
+.pb-r{background:var(--red-bg);color:var(--red-text);}
+.pb-g{background:var(--green-bg);color:var(--green-text);}
+.pb-a{background:var(--amber-bg);color:var(--amber-text);}
+.spin{width:15px;height:15px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ri{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:13px 15px;margin-bottom:8px;cursor:pointer;}
+.ri:active{background:var(--bg2);}
+.rt{display:flex;justify-content:space-between;align-items:flex-start;}
+.rs{font-size:15px;font-weight:600;}
+.rv{font-size:15px;font-weight:600;}
+.rm{font-size:12px;color:var(--text2);margin-top:2px;}
+.rl-lines{margin-top:10px;border-top:0.5px solid var(--border);padding-top:10px;display:none;}
+.rl-line{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--text2);}
+.rl-line span:last-child{font-weight:500;color:var(--text);}
+.sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.pr:last-child{border-bottom:none;}
+.prn{font-size:14px;font-weight:500;}
+.prm{font-size:11px;color:var(--text3);margin-top:2px;}
+.prr{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.po{font-size:12px;color:var(--text3);text-decoration:line-through;}
+.pn{font-size:14px;font-weight:600;}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.bu{background:var(--red-bg);color:var(--red-text);}
+.bd{background:var(--green-bg);color:var(--green-text);}
+.bf{background:var(--bg2);color:var(--text2);}
+.ai{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.ai:last-child{border-bottom:none;}
+.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ainfo{flex:1;}
+.an{font-size:14px;font-weight:500;}
+.am{font-size:12px;color:var(--text2);margin-top:1px;}
+.br{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:13px;}
+.bl{width:95px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bt{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.bf2{height:100%;border-radius:3px;}
+.bv{width:50px;text-align:right;font-weight:600;font-size:13px;}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cc{background:var(--bg2);border-radius:var(--r);padding:10px 12px;}
+.ccn{font-size:11px;color:var(--text2);margin-bottom:3px;}
+.ccv{font-size:16px;font-weight:600;}
+.ccp{font-size:11px;color:var(--text3);}
+.ss{padding:24px 0;}
+.si{font-size:44px;margin-bottom:14px;text-align:center;}
+.st{font-size:21px;font-weight:700;margin-bottom:8px;text-align:center;}
+.sb{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;text-align:center;}
+.ssteps{background:var(--bg2);border-radius:var(--rl);padding:14px;margin-bottom:20px;}
+.sstep{display:flex;gap:12px;margin-bottom:10px;font-size:14px;line-height:1.5;}
+.sstep:last-child{margin-bottom:0;}
+.sn{width:22px;height:22px;background:var(--text);color:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;}
+a{color:var(--blue);}
+.es{text-align:center;padding:48px 20px;color:var(--text2);}
+.ei{font-size:38px;margin-bottom:12px;}
+.et{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.eb{font-size:14px;line-height:1.5;}
+code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="flex:1;min-width:0">
+      <div class="topbar-title">Basket Tracker</div>
+      <div id="tsub" class="topbar-sub">Loading...</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-sm" onclick="showPanel('sheets')">&#128202; Sheets</button>
+      <button class="btn btn-sm" onclick="showPanel('setup')">&#128273;</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ADD -->
+    <div id="panel-add" class="panel active">
+      <div id="apiw" style="display:none" class="pb pb-r"><span>&#9888;</span><span style="flex:1">Add API key to enable photo scanning</span><button onclick="showPanel('setup')" style="background:none;border:none;color:var(--red-text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:0">Set up &#8250;</button></div>
+      <div id="pbar" class="pb pb-b" style="display:none"><div class="spin"></div><span id="ptxt">Scanning...</span></div>
+      <label for="filein"><div class="upload-btn">
+        <div class="uiw">&#128247;</div>
+        <div style="font-size:15px;font-weight:600">Scan a receipt</div>
+        <div style="font-size:13px;color:var(--text2)">Take a photo or choose from gallery</div>
+      </div></label>
+      <input type="file" id="filein" accept="image/*" capture="environment" style="display:none" onchange="handleUpload(event)">
+      <div class="divider">or enter manually</div>
+      <div class="card">
+        <div class="fr" style="margin-bottom:12px">
+          <div><div style="font-size:13px;color:var(--text2);margin-bottom:5px;font-weight:500">Store</div>
+            <select class="fi" id="store">
+              <option value="">Select...</option>
+              <option>Aldi</option><option>Lidl</option><option>Sainsbury's</option>
+              <option>Tesco</option><option>Dunya Supermarket</option><option>Other</option>
+            </select>
+          </div>
+          <div><div style="font-size:13px;color:var(--text2);margin-bottom:5px;font-weight:500">Date</div>
+            <input class="fi" type="date" id="datein">
+          </div>
+        </div>
+        <div class="ia">
+          <div class="ia-title">Items</div>
+          <div class="ia-r1">
+            <input class="fi" style="margin:0" type="text" id="iname" placeholder="Item name" onkeydown="if(event.key==='Enter')addItem()">
+            <input class="fi" style="margin:0" type="number" id="iprice" placeholder="£" step="0.01" min="0" onkeydown="if(event.key==='Enter')addItem()">
+          </div>
+          <div class="ia-r2">
+            <select class="fi" style="margin:0" id="icat">
+              <option value="Fruit &amp; veg">Fruit &amp; veg</option>
+              <option value="Meat &amp; fish">Meat &amp; fish</option>
+              <option value="Dairy &amp; eggs">Dairy &amp; eggs</option>
+              <option value="Tinned &amp; dry">Tinned &amp; dry</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Household">Household</option>
+              <option value="Other">Other</option>
+            </select>
+            <button class="addbtn" onclick="addItem()">+ Add</button>
+          </div>
+          <div id="ilist"></div>
+        </div>
+        <button class="btn btn-p" onclick="saveReceipt()">Save receipt</button>
+        <button class="btn" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="panel-history" class="panel"><div id="hcontent"></div></div>
+
+    <!-- PRICES -->
+    <div id="panel-prices" class="panel"><div id="pcontent"></div></div>
+
+    <!-- INSIGHTS -->
+    <div id="panel-insights" class="panel"><div id="icontent"></div></div>
+
+    <!-- SHEETS SETUP -->
+    <div id="panel-sheets" class="panel">
+      <div class="ss">
+        <div class="si">&#128202;</div>
+        <div class="st">Google Sheets sync</div>
+        <div class="sb">Every receipt gets saved to a live Google Sheet automatically.</div>
+        <div class="ssteps">
+          <div class="sstep"><div class="sn">1</div><div>Open <a href="https://script.google.com" target="_blank">script.google.com</a> and click <strong>New project</strong></div></div>
+          <div class="sstep"><div class="sn">2</div><div>Delete all the code in there. Open <strong>setup-sheet.gs</strong> in Notepad, copy everything, paste it in. Press <strong>Ctrl+S</strong> to save</div></div>
+          <div class="sstep"><div class="sn">3</div><div>Click <strong>Deploy</strong> (top right) → <strong>New deployment</strong></div></div>
+          <div class="sstep"><div class="sn">4</div><div>Click the gear icon next to "Select type" and choose <strong>Web app</strong></div></div>
+          <div class="sstep"><div class="sn">5</div><div>Set <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong>. Click <strong>Deploy</strong></div></div>
+          <div class="sstep"><div class="sn">6</div><div>Click <strong>Authorise access</strong> → choose your Google account → click <strong>Advanced</strong> → <strong>Go to project (unsafe)</strong> → <strong>Allow</strong></div></div>
+          <div class="sstep"><div class="sn">7</div><div>Copy the <strong>Web app URL</strong> shown (ends in <code>/exec</code>) and paste it below</div></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:5px;font-weight:500">Web app URL</div>
+          <input class="fi" type="url" id="shurl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <button class="btn btn-p" onclick="saveSheetUrl()">Save URL</button>
+        <div id="shres" style="font-size:13px;min-height:18px;margin-bottom:8px"></div>
+        <button class="btn btn-w" id="impbtn" onclick="importHistory()" style="display:none">&#128190; Import all my historical receipts</button>
+        <div id="impres" style="font-size:13px;min-height:18px;margin-bottom:8px"></div>
+        <button class="btn" onclick="showPanel('add')">Done</button>
+        <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.6">Due to browser security rules the app sends data silently — it can't confirm receipt. Data will appear in your sheet within a few seconds of saving.</p>
+      </div>
+    </div>
+
+    <!-- API KEY -->
+    <div id="panel-setup" class="panel">
+      <div class="ss">
+        <div class="si">&#128273;</div>
+        <div class="st">Anthropic API key</div>
+        <div class="sb">Needed to scan receipt photos. Each scan costs under 1p.</div>
+        <div class="ssteps">
+          <div class="sstep"><div class="sn">1</div><div>Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> and sign up free</div></div>
+          <div class="sstep"><div class="sn">2</div><div>Click <strong>API Keys</strong> in the left menu → <strong>Create key</strong></div></div>
+          <div class="sstep"><div class="sn">3</div><div>Copy it (starts with <code>sk-ant-</code>) and paste below</div></div>
+          <div class="sstep"><div class="sn">4</div><div>Add a small credit top-up — £5 lasts hundreds of scans</div></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:5px;font-weight:500">API key</div>
+          <input class="fi" type="password" id="akin" placeholder="sk-ant-...">
+        </div>
+        <button class="btn btn-p" onclick="saveKey()">Save key</button>
+        <button class="btn" onclick="showPanel('add')" style="margin-top:4px">Cancel</button>
+        <p style="font-size:11px;color:var(--text3);margin-top:12px">Stored only on this device. You can still add receipts manually without a key.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottomnav">
+    <button class="nav-item active" id="nav-add" onclick="showPanel('add')"><div class="nav-icon">+</div><div class="nav-label">Add</div></button>
+    <button class="nav-item" id="nav-history" onclick="showPanel('history')"><div class="nav-icon">&#128196;</div><div class="nav-label">History</div></button>
+    <button class="nav-item" id="nav-prices" onclick="showPanel('prices')"><div class="nav-icon">&#128202;</div><div class="nav-label">Prices</div></button>
+    <button class="nav-item" id="nav-insights" onclick="showPanel('insights')"><div class="nav-icon">&#9685;</div><div class="nav-label">Insights</div></button>
+  </nav>
+</div>
+
+<script>
+const DBK='btkr-db',AKK='btkr-ak',SUK='btkr-su';
+let db={receipts:[]},pend=[];
+
+const HIST=[{"id":"20260307000001","store":"Aldi","date":"2026-03-07","items":[{"name":"Toilet cleaner 750ml","price":0.55,"cat":"Household"},{"name":"Toilet cleaner 750ml","price":0.55,"cat":"Household"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Parmesan Reggiano","price":3.19,"cat":"Dairy & eggs"},{"name":"Parmesan Reggiano","price":3.19,"cat":"Dairy & eggs"},{"name":"Mozzarella","price":0.95,"cat":"Dairy & eggs"},{"name":"Mozzarella","price":0.95,"cat":"Dairy & eggs"},{"name":"Extra Mature Cheese 400g","price":2.49,"cat":"Dairy & eggs"},{"name":"Beef mince 5% fat 750g","price":7.15,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Black Cod","price":4.49,"cat":"Meat & fish"},{"name":"Cod Loins 260g","price":5.49,"cat":"Meat & fish"},{"name":"Cod Loins 260g","price":5.49,"cat":"Meat & fish"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Kidney beans 400g","price":0.42,"cat":"Tinned & dry"},{"name":"Kidney beans 400g","price":0.42,"cat":"Tinned & dry"},{"name":"Mixed beans 400g","price":0.69,"cat":"Tinned & dry"},{"name":"Cannellini beans","price":0.45,"cat":"Tinned & dry"},{"name":"Cannellini beans","price":0.45,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Passata Rustica","price":1.95,"cat":"Tinned & dry"},{"name":"Passata Rustica","price":1.95,"cat":"Tinned & dry"},{"name":"Passata 500g","price":0.49,"cat":"Tinned & dry"},{"name":"Tomato puree","price":0.59,"cat":"Tinned & dry"},{"name":"Tomato puree","price":0.59,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Pasta","price":1.35,"cat":"Tinned & dry"},{"name":"Pasta","price":1.65,"cat":"Tinned & dry"},{"name":"Pasta","price":2.25,"cat":"Tinned & dry"},{"name":"Egg tagliatelle","price":1.45,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Petits pois 700g","price":1.09,"cat":"Frozen"},{"name":"Petits pois 700g","price":1.09,"cat":"Frozen"},{"name":"Frozen strawberries","price":1.99,"cat":"Frozen"},{"name":"Frozen strawberries","price":1.99,"cat":"Frozen"},{"name":"Frozen blueberries","price":1.99,"cat":"Frozen"},{"name":"Frozen tropical fruit","price":1.99,"cat":"Frozen"},{"name":"Frozen broccoli","price":1.19,"cat":"Frozen"},{"name":"Pine seeds","price":1.69,"cat":"Other"},{"name":"Sunflower seed mix","price":1.15,"cat":"Other"},{"name":"Macadamias pecans","price":2.99,"cat":"Other"},{"name":"Peanut butter 100%","price":3.99,"cat":"Other"},{"name":"Caster sugar 1kg","price":1.09,"cat":"Tinned & dry"},{"name":"Soft sugar 500g","price":1.09,"cat":"Tinned & dry"},{"name":"Soft sugar 500g","price":1.09,"cat":"Tinned & dry"},{"name":"Dishwasher salt","price":1.49,"cat":"Household"},{"name":"Dishwasher salt","price":1.49,"cat":"Household"},{"name":"Grapes mixed","price":1.35,"cat":"Fruit & veg"},{"name":"Mango banana chips","price":1.25,"cat":"Other"}],"total":132.05},{"id":"20260314000001","store":"Aldi","date":"2026-03-14","items":[{"name":"Peppers","price":1.09,"cat":"Fruit & veg"},{"name":"Natural yogurt","price":0.89,"cat":"Dairy & eggs"},{"name":"Stock pots","price":1.29,"cat":"Tinned & dry"},{"name":"Olives","price":0.99,"cat":"Other"},{"name":"Potatoes","price":1.09,"cat":"Fruit & veg"},{"name":"Chestnut mushrooms","price":0.95,"cat":"Fruit & veg"},{"name":"Baby spinach","price":1.15,"cat":"Fruit & veg"},{"name":"Strawberries","price":3.39,"cat":"Fruit & veg"},{"name":"Goats cheese","price":1.99,"cat":"Dairy & eggs"},{"name":"Babycorn","price":0.99,"cat":"Fruit & veg"},{"name":"Limes","price":0.89,"cat":"Fruit & veg"},{"name":"Tomatoes","price":1.09,"cat":"Fruit & veg"},{"name":"Spring onions","price":0.55,"cat":"Fruit & veg"},{"name":"Avocado","price":1.39,"cat":"Fruit & veg"},{"name":"Rice cakes","price":0.99,"cat":"Other"},{"name":"Lettuce","price":0.65,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Frozen broccoli","price":0.79,"cat":"Frozen"}],"total":22.65},{"id":"20260331000001","store":"Aldi","date":"2026-03-31","items":[{"name":"Macadamias pecans","price":2.99,"cat":"Other"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Chestnut mushrooms","price":0.95,"cat":"Fruit & veg"},{"name":"Baby spinach","price":1.15,"cat":"Fruit & veg"},{"name":"Avocado","price":1.39,"cat":"Fruit & veg"},{"name":"Strawberries","price":2.49,"cat":"Fruit & veg"},{"name":"Goats cheese","price":1.99,"cat":"Dairy & eggs"}],"total":14.74},{"id":"20260402000001","store":"Sainsbury's","date":"2026-04-02","items":[{"name":"Strawberries 400g","price":3.6,"cat":"Fruit & veg"},{"name":"Strawberries 350g","price":3.3,"cat":"Fruit & veg"},{"name":"Beef mince 5% 1kg","price":9.25,"cat":"Meat & fish"},{"name":"Frozen raspberries 315g","price":3.3,"cat":"Frozen"},{"name":"Grapes mixed","price":2.0,"cat":"Fruit & veg"},{"name":"Tomato variety box","price":6.0,"cat":"Fruit & veg"},{"name":"Thai basil","price":0.75,"cat":"Fruit & veg"},{"name":"Bay leaf","price":0.55,"cat":"Fruit & veg"},{"name":"Dill","price":0.9,"cat":"Fruit & veg"},{"name":"Coriander","price":0.75,"cat":"Fruit & veg"},{"name":"Grapefruits x9","price":3.6,"cat":"Fruit & veg"},{"name":"Cooked chicken stock","price":2.9,"cat":"Tinned & dry"},{"name":"Cooked chicken stock","price":2.9,"cat":"Tinned & dry"},{"name":"Bang Bang chilli sauce","price":3.4,"cat":"Other"},{"name":"Free range eggs x15","price":3.5,"cat":"Dairy & eggs"},{"name":"Sparkling water 2L","price":0.9,"cat":"Other"},{"name":"Remedy kombucha","price":2.95,"cat":"Other"}],"total":50.55},{"id":"20260408000001","store":"Lidl","date":"2026-04-08","items":[{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Bananas bunch","price":0.78,"cat":"Fruit & veg"},{"name":"Bananas bunch","price":0.78,"cat":"Fruit & veg"}],"total":5.52},{"id":"20260410000001","store":"Lidl","date":"2026-04-10","items":[{"name":"Chicken thigh fillet 600g","price":4.59,"cat":"Meat & fish"},{"name":"Deluxe strawberries","price":3.49,"cat":"Fruit & veg"},{"name":"Black grapes punnet","price":1.89,"cat":"Fruit & veg"},{"name":"Coriander large","price":1.09,"cat":"Fruit & veg"},{"name":"Coriander large","price":1.09,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Chillies","price":0.79,"cat":"Fruit & veg"},{"name":"Salad trio","price":1.29,"cat":"Fruit & veg"},{"name":"Fat free natural yogurt","price":0.55,"cat":"Dairy & eggs"}],"total":16.28}];
+
+function gsu(){return localStorage.getItem(SUK)||'';}
+function gak(){return localStorage.getItem(AKK)||'';}
+
+async function toSheets(payload){
+  const url=gsu();if(!url)return;
+  try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});}catch(e){}
+}
+
+function init(){
+  try{const s=localStorage.getItem(DBK);if(s)db=JSON.parse(s);}catch(e){}
+  if(!db.receipts.length){db.receipts=HIST;persist();}
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  document.getElementById('datein').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  updateTop();
+  document.getElementById('apiw').style.display=gak()?'none':'block';
+  const su=gsu();if(su){document.getElementById('shurl').value=su;document.getElementById('impbtn').style.display='block';}
+}
+
+function persist(){localStorage.setItem(DBK,JSON.stringify(db));updateTop();}
+
+function updateTop(){
+  const n=db.receipts.length,t=db.receipts.reduce((s,r)=>s+r.total,0);
+  const su=gsu();
+  document.getElementById('tsub').innerHTML=`${n} shops · £${t.toFixed(2)} &nbsp;<span class="sdot" style="background:${su?'var(--green)':'var(--text3)'}"></span>${su?'Sheets on':'No Sheets'}`;
+}
+
+function showPanel(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
+  const nb=document.getElementById('nav-'+n);if(nb)nb.classList.add('active');
+  if(n==='history')renderHistory();
+  if(n==='prices')renderPrices();
+  if(n==='insights')renderInsights();
+}
+
+function saveKey(){
+  const k=document.getElementById('akin').value.trim();
+  if(!k.startsWith('sk-ant-')){alert('Key should start with sk-ant-');return;}
+  localStorage.setItem(AKK,k);
+  document.getElementById('apiw').style.display='none';
+  showPanel('add');
+}
+
+function saveSheetUrl(){
+  const url=document.getElementById('shurl').value.trim();
+  if(!url||!url.includes('script.google.com')){alert('Please paste a valid Google Apps Script URL ending in /exec');return;}
+  localStorage.setItem(SUK,url);
+  const r=document.getElementById('shres');
+  r.style.color='var(--green-text)';
+  r.textContent='Saved. New receipts will sync automatically.';
+  document.getElementById('impbtn').style.display='block';
+  updateTop();
+}
+
+async function importHistory(){
+  const btn=document.getElementById('impbtn'),res=document.getElementById('impres');
+  btn.disabled=true;btn.textContent='Sending...';
+  res.style.color='var(--text2)';
+  for(let i=0;i<HIST.length;i++){
+    res.textContent=`Sending receipt ${i+1} of ${HIST.length}...`;
+    await toSheets({action:'save_receipt',receipt:HIST[i]});
+    await new Promise(r=>setTimeout(r,500));
+  }
+  btn.disabled=false;btn.textContent='&#128190; Import all my historical receipts';
+  res.style.color='var(--green-text)';
+  res.textContent='Done! Check your Google Sheet — all 6 receipts should appear within a minute.';
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function addItem(){
+  const name=document.getElementById('iname').value.trim();
+  const price=parseFloat(document.getElementById('iprice').value);
+  const cat=document.getElementById('icat').value;
+  if(!name||isNaN(price)||price<=0)return;
+  pend.push({name,price,cat});
+  document.getElementById('iname').value='';document.getElementById('iprice').value='';
+  document.getElementById('iname').focus();renderPend();
+}
+function renderPend(){
+  document.getElementById('ilist').innerHTML=pend.map((it,i)=>`<div class="chip"><div><div class="chip-name">${esc(it.name)}</div><div class="chip-meta">${it.cat}</div></div><div class="chip-r"><div class="chip-price">£${it.price.toFixed(2)}</div><button class="rx" onclick="rmItem(${i})">&#215;</button></div></div>`).join('');
+}
+function rmItem(i){pend.splice(i,1);renderPend();}
+function clearForm(){pend=[];document.getElementById('store').value='';renderPend();}
+
+async function saveReceipt(){
+  const store=document.getElementById('store').value,date=document.getElementById('datein').value;
+  if(!store){alert('Please select a store.');return;}
+  if(!pend.length){alert('Please add at least one item.');return;}
+  const r={id:Date.now().toString(),store,date,items:[...pend],total:pend.reduce((s,i)=>s+i.price,0)};
+  db.receipts.push(r);persist();clearForm();
+  if(gsu())toSheets({action:'save_receipt',receipt:r});
+  showPanel('history');
+}
+
+async function handleUpload(e){
+  const file=e.target.files[0];if(!file)return;e.target.value='';
+  const key=gak();if(!key){showPanel('setup');return;}
+  const bar=document.getElementById('pbar'),txt=document.getElementById('ptxt');
+  bar.style.display='flex';txt.textContent='Scanning receipt...';
+  try{
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1000,
+        system:'UK receipt parser. Extract purchased line items only (not totals or subtotals). Return ONLY valid JSON, no markdown. Format: {"store":"name","date":"YYYY-MM-DD or empty string","items":[{"name":"item name","price":0.00,"cat":"Fruit & veg|Meat & fish|Dairy & eggs|Tinned & dry|Frozen|Household|Other"}]}',
+        messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},{type:'text',text:'Parse this receipt.'}]}]})});
+    const data=await resp.json();
+    if(data.error)throw new Error(data.error.message);
+    const text=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    pend=parsed.items||[];
+    if(parsed.store){const sel=document.getElementById('store');let m=false;for(const o of sel.options){if(o.value.toLowerCase().includes(parsed.store.toLowerCase())||parsed.store.toLowerCase().includes(o.value.toLowerCase())){sel.value=o.value;m=true;break;}}if(!m&&parsed.store)sel.value='Other';}
+    if(parsed.date)document.getElementById('datein').value=parsed.date;
+    renderPend();bar.style.display='none';
+  }catch(err){bar.style.display='none';alert('Scan failed — check your API key or enter manually.\n\n'+err.message);}
+}
+
+function fmtD(d){if(!d)return'';const p=d.split('-');return`${parseInt(p[2])} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1])-1]} ${p[0]}`;}
+
+function renderHistory(){
+  const c=document.getElementById('hcontent');
+  if(!db.receipts.length){c.innerHTML='<div class="es"><div class="ei">&#128378;</div><div class="et">No receipts yet</div><div class="eb">Tap Add to scan or enter your first receipt.</div></div>';return;}
+  const sorted=[...db.receipts].sort((a,b)=>b.date.localeCompare(a.date));
+  const tot=db.receipts.reduce((s,r)=>s+r.total,0),avg=tot/db.receipts.length;
+  const st={};db.receipts.forEach(r=>st[r.store]=(st[r.store]||0)+1);
+  const top=Object.entries(st).sort((a,b)=>b[1]-a[1])[0];
+  c.innerHTML=`<div class="mg"><div class="m"><div class="ml">Total shops</div><div class="mv">${db.receipts.length}</div></div><div class="m"><div class="ml">Total spent</div><div class="mv">£${tot.toFixed(0)}</div></div><div class="m"><div class="ml">Avg basket</div><div class="mv">£${avg.toFixed(2)}</div></div><div class="m"><div class="ml">Top store</div><div class="mv" style="font-size:14px">${top?top[0]:'—'}</div></div></div>
+  ${sorted.map(r=>`<div class="ri" onclick="togLines('${r.id}')"><div class="rt"><div><div class="rs">${esc(r.store)}</div><div class="rm">${fmtD(r.date)} · ${r.items.length} items</div></div><div class="rv">£${r.total.toFixed(2)}</div></div><div class="rl-lines" id="ll-${r.id}">${r.items.map(i=>`<div class="rl-line"><span>${esc(i.name)} <span style="font-size:11px;color:var(--text3)">${i.cat}</span></span><span>£${i.price.toFixed(2)}</span></div>`).join('')}<button onclick="event.stopPropagation();delReceipt('${r.id}')" class="btn btn-d" style="margin-top:10px;padding:9px;font-size:13px">Delete receipt</button></div></div>`).join('')}`;
+}
+function togLines(id){const el=document.getElementById('ll-'+id);el.style.display=el.style.display==='block'?'none':'block';}
+function delReceipt(id){
+  if(!confirm('Delete this receipt?'))return;
+  db.receipts=db.receipts.filter(r=>r.id!==id);persist();
+  if(gsu())toSheets({action:'delete_receipt',id});
+  renderHistory();
+}
+
+function renderPrices(){
+  const c=document.getElementById('pcontent');
+  if(db.receipts.length<2){c.innerHTML='<div class="es"><div class="ei">&#128202;</div><div class="et">Need more data</div><div class="eb">Add receipts from at least two shops to start tracking price changes.</div></div>';return;}
+  const hist={};
+  db.receipts.forEach(r=>r.items.forEach(item=>{const k=item.name.toLowerCase().replace(/\s+/g,' ').trim();if(!hist[k])hist[k]={name:item.name,entries:[]};hist[k].entries.push({date:r.date,store:r.store,price:item.price});}));
+  const tracked=Object.values(hist).filter(i=>i.entries.length>1).map(i=>{const s=i.entries.sort((a,b)=>a.date>b.date?1:-1);const f=s[0],l=s[s.length-1],p=((l.price-f.price)/f.price)*100;return{...i,f,l,p};}).sort((a,b)=>Math.abs(b.p)-Math.abs(a.p));
+  const alerts=tracked.filter(i=>Math.abs(i.p)>=5);
+  const singles=Object.values(hist).filter(i=>i.entries.length===1).length;
+  let html='';
+  if(alerts.length)html+=`<div class="card"><div class="card-title">&#9888; Price alerts — 5%+ change</div>${alerts.map(a=>`<div class="ai"><div class="adot" style="background:${a.p>0?'var(--red)':'var(--green)'}"></div><div class="ainfo"><div class="an">${esc(a.name)}</div><div class="am">£${a.f.price.toFixed(2)} → £${a.l.price.toFixed(2)} · ${a.f.store}${a.f.store!==a.l.store?' → '+a.l.store:''}</div></div><span class="badge ${a.p>0?'bu':'bd'}">${a.p>0?'+':''}${a.p.toFixed(1)}%</span></div>`).join('')}</div>`;
+  if(tracked.length)html+=`<div class="card"><div class="card-title">All tracked prices</div>${tracked.map(i=>`<div class="pr"><div><div class="prn">${esc(i.name)}</div><div class="prm">${i.entries.length} records · ${i.f.store}${i.f.store!==i.l.store?' vs '+i.l.store:''}</div></div><div class="prr"><div style="text-align:right"><div class="po">£${i.f.price.toFixed(2)}</div><div class="pn">£${i.l.price.toFixed(2)}</div></div><span class="badge ${i.p>2?'bu':i.p<-2?'bd':'bf'}">${i.p>0?'+':''}${i.p.toFixed(1)}%</span></div></div>`).join('')}</div>`;
+  else html+='<div class="es"><div class="ei">&#128203;</div><div class="et">No repeat items yet</div><div class="eb">Price tracking kicks in when you buy the same item on separate shops.</div></div>';
+  if(singles)html+=`<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">${singles} item${singles>1?'s':''} seen once — tracked when repurchased.</div>`;
+  c.innerHTML=html;
+}
+
+function renderInsights(){
+  const c=document.getElementById('icontent');
+  if(!db.receipts.length){c.innerHTML='<div class="es"><div class="ei">&#128270;</div><div class="et">No data yet</div></div>';return;}
+  const ss={},cs={},ms={};
+  db.receipts.forEach(r=>{ss[r.store]=(ss[r.store]||0)+r.total;const m=r.date.slice(0,7);ms[m]=(ms[m]||0)+r.total;r.items.forEach(i=>cs[i.cat]=(cs[i.cat]||0)+i.price);});
+  const tot=Object.values(ss).reduce((s,v)=>s+v,0);
+  const se=Object.entries(ss).sort((a,b)=>b[1]-a[1]),ce=Object.entries(cs).sort((a,b)=>b[1]-a[1]),me=Object.entries(ms).sort((a,b)=>a[0].localeCompare(b[0]));
+  const maxM=Math.max(...me.map(e=>e[1]));
+  const cols=['#3266ad','#1D9E75','#BA7517','#E24B4A','#534AB7','#639922'];
+  c.innerHTML=`<div class="mg"><div class="m"><div class="ml">Total spent</div><div class="mv">£${tot.toFixed(0)}</div><div class="ms">${db.receipts.length} shops</div></div><div class="m"><div class="ml">Avg basket</div><div class="mv">£${(tot/db.receipts.length).toFixed(2)}</div></div><div class="m"><div class="ml">Stores used</div><div class="mv">${Object.keys(ss).length}</div></div><div class="m"><div class="ml">Top category</div><div class="mv" style="font-size:13px">${ce[0]?ce[0][0]:'—'}</div></div></div>
+  <div class="card"><div class="card-title">Spend by store</div>${se.map((s,i)=>`<div class="br"><div class="bl">${esc(s[0])}</div><div class="bt"><div class="bf2" style="width:${(s[1]/tot*100).toFixed(1)}%;background:${cols[i%cols.length]}"></div></div><div class="bv">£${s[1].toFixed(0)}</div></div>`).join('')}</div>
+  <div class="card"><div class="card-title">Spend by category</div><div class="cg">${ce.map(cat=>`<div class="cc"><div class="ccn">${cat[0]}</div><div class="ccv">£${cat[1].toFixed(2)}</div><div class="ccp">${(cat[1]/tot*100).toFixed(0)}% of total</div></div>`).join('')}</div></div>
+  ${me.length>1?`<div class="card"><div class="card-title">Monthly spend</div>${me.map(m=>{const label=new Date(m[0]+'-01').toLocaleDateString('en-GB',{month:'short',year:'numeric'});return`<div class="br"><div class="bl">${label}</div><div class="bt"><div class="bf2" style="width:${(m[1]/maxM*100).toFixed(1)}%;background:#3266ad"></div></div><div class="bv">£${m[1].toFixed(0)}</div></div>`;}).join('')}</div>`:''}`;
+}
+
+init();
+</script>
+</body>
+</html>
