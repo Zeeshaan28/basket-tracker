@@ -174,9 +174,10 @@ code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
         </div>
         <div class="ia">
           <div class="ia-title">Items</div>
-          <div class="ia-r1">
+          <div style="display:grid;grid-template-columns:1fr 60px 90px;gap:8px;margin-bottom:8px">
             <input class="fi" style="margin:0" type="text" id="iname" placeholder="Item name" onkeydown="if(event.key==='Enter')addItem()">
-            <input class="fi" style="margin:0" type="number" id="iprice" placeholder="£" step="0.01" min="0" onkeydown="if(event.key==='Enter')addItem()">
+            <input class="fi" style="margin:0;text-align:center" type="number" id="iqty" placeholder="Qty" step="1" min="1" value="1" onkeydown="if(event.key==='Enter')addItem()">
+            <input class="fi" style="margin:0" type="number" id="iprice" placeholder="£ each" step="0.01" min="0" onkeydown="if(event.key==='Enter')addItem()">
           </div>
           <div class="ia-r2">
             <select class="fi" style="margin:0" id="icat">
@@ -392,17 +393,23 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 function addItem(){
   const name=document.getElementById('iname').value.trim();
-  const price=parseFloat(document.getElementById('iprice').value);
+  const qty=parseFloat(document.getElementById('iqty').value)||1;
+  const unitPrice=parseFloat(document.getElementById('iprice').value);
   const cat=document.getElementById('icat').value;
-  if(!name||isNaN(price)||price<=0)return;
-  pend.push({name,price,cat});
-  document.getElementById('iname').value='';document.getElementById('iprice').value='';
+  if(!name||isNaN(unitPrice)||unitPrice<=0)return;
+  const price=parseFloat((qty*unitPrice).toFixed(2));
+  pend.push({name,qty,unitPrice,price,cat});
+  document.getElementById('iname').value='';document.getElementById('iqty').value='1';document.getElementById('iprice').value='';
   document.getElementById('iname').focus();renderPend();
 }
 function catOpts(sel){
   const cats=['Fruit & veg','Meat & fish','Dairy & eggs','Tinned & dry','Frozen','Household','Other'];
   return cats.map(c=>`<option value="${c}" ${c===sel?'selected':''}>${c}</option>`).join('');
 }
+function getUP(it){return it.unitPrice!=null?it.unitPrice:it.price;}
+function getQty(it){return it.qty!=null?it.qty:1;}
+function recalc(arr,i){arr[i].price=parseFloat((getQty(arr[i])*getUP(arr[i])).toFixed(2));}
+
 function renderPend(){
   document.getElementById('ilist').innerHTML=pend.map((it,i)=>`
     <div class="chip">
@@ -410,10 +417,12 @@ function renderPend(){
         <input class="chip-nin" type="text" value="${esc(it.name)}" onchange="pend[${i}].name=this.value" placeholder="Item name">
         <button class="rx" onclick="rmItem(${i})">&#215;</button>
       </div>
-      <div class="chip-row2">
-        <select class="chip-cin" onchange="pend[${i}].cat=this.value">${catOpts(it.cat)}</select>
-        <input class="chip-pin" type="number" step="0.01" min="0" value="${it.price.toFixed(2)}" onchange="pend[${i}].price=parseFloat(this.value)||0" placeholder="£">
+      <div style="display:grid;grid-template-columns:50px 90px 1fr;gap:6px;margin-bottom:6px;align-items:center">
+        <input class="chip-pin" type="number" step="1" min="1" value="${getQty(it)}" onchange="pend[${i}].qty=parseFloat(this.value)||1;recalc(pend,${i});renderPend()" placeholder="Qty" title="Quantity">
+        <input class="chip-pin" type="number" step="0.01" min="0" value="${getUP(it).toFixed(2)}" onchange="pend[${i}].unitPrice=parseFloat(this.value)||0;recalc(pend,${i});renderPend()" placeholder="£ each" title="Unit price">
+        <div style="font-size:12px;color:var(--text2);text-align:right">Total: <strong>£${it.price.toFixed(2)}</strong></div>
       </div>
+      <select class="chip-cin" onchange="pend[${i}].cat=this.value">${catOpts(it.cat)}</select>
     </div>`).join('');
 }
 function rmItem(i){pend.splice(i,1);renderPend();}
@@ -527,10 +536,12 @@ function renderEditItems(items){
         <input class="edit-in" type="text" value="${esc(it.name)}" onchange="updateEditItem(${i},'name',this.value)" placeholder="Item name">
         <button class="rx" style="font-size:20px" onclick="removeEditItem(${i})">&#215;</button>
       </div>
-      <div class="edit-item-row2">
-        <select class="edit-in" onchange="updateEditItem(${i},'cat',this.value)">${catOpts2(it.cat)}</select>
-        <input class="edit-in" type="number" step="0.01" min="0" value="${it.price.toFixed(2)}" onchange="updateEditItem(${i},'price',parseFloat(this.value)||0)" placeholder="£">
+      <div style="display:grid;grid-template-columns:55px 95px 1fr;gap:6px;margin-bottom:6px;align-items:center">
+        <input class="edit-in" type="number" step="1" min="1" value="${getQty(it)}" onchange="updateEditItem(${i},'qty',parseFloat(this.value)||1)" placeholder="Qty" title="Quantity">
+        <input class="edit-in" type="number" step="0.01" min="0" value="${getUP(it).toFixed(2)}" onchange="updateEditItem(${i},'unitPrice',parseFloat(this.value)||0)" placeholder="£ each" title="Unit price">
+        <div style="font-size:12px;color:var(--text2);text-align:right">Total: <strong>£${it.price.toFixed(2)}</strong></div>
       </div>
+      <select class="edit-in" onchange="updateEditItem(${i},'cat',this.value)">${catOpts2(it.cat)}</select>
     </div>`).join('');
 }
 
@@ -538,6 +549,10 @@ function updateEditItem(i,field,val){
   const r=db.receipts.find(r=>r.id===editId);
   if(!r)return;
   r.items[i][field]=val;
+  if(field==='qty'||field==='unitPrice'){
+    r.items[i].price=parseFloat((getQty(r.items[i])*getUP(r.items[i])).toFixed(2));
+    renderEditItems(r.items);
+  }
 }
 
 function removeEditItem(i){
@@ -550,7 +565,7 @@ function removeEditItem(i){
 function addEditItem(){
   const r=db.receipts.find(r=>r.id===editId);
   if(!r)return;
-  r.items.push({name:'',price:0,cat:'Other'});
+  r.items.push({name:'',qty:1,unitPrice:0,price:0,cat:'Other'});
   renderEditItems(r.items);
 }
 
