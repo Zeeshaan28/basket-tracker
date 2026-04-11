@@ -45,12 +45,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .ia-r2{display:grid;grid-template-columns:1fr 75px;gap:8px;margin-bottom:10px;}
 .addbtn{background:var(--text);color:var(--bg);border:none;border-radius:var(--r);padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;}
 .addbtn:active{opacity:0.8;}
-.chip{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r);padding:8px 12px;margin-bottom:6px;}
-.chip-name{font-size:14px;font-weight:500;}
-.chip-meta{font-size:11px;color:var(--text3);margin-top:1px;}
-.chip-r{display:flex;align-items:center;gap:10px;}
-.chip-price{font-size:14px;font-weight:600;}
-.rx{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;}
+.chip{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r);padding:8px 12px;margin-bottom:6px;}
+.chip-row1{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.chip-nin{flex:1;background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:6px 9px;font-size:14px;font-weight:500;color:var(--text);font-family:inherit;outline:none;}
+.chip-nin:focus{border-color:var(--blue);}
+.rx{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;}
+.chip-row2{display:grid;grid-template-columns:1fr 90px;gap:8px;}
+.chip-cin{background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:6px 9px;font-size:12px;color:var(--text2);font-family:inherit;outline:none;-webkit-appearance:none;width:100%;}
+.chip-cin:focus{border-color:var(--blue);}
+.chip-pin{background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:6px 9px;font-size:14px;font-weight:600;color:var(--text);font-family:inherit;outline:none;text-align:right;width:100%;}
+.chip-pin:focus{border-color:var(--blue);}
 .btn{font-family:inherit;font-size:15px;font-weight:600;padding:12px 20px;border-radius:var(--r);cursor:pointer;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);width:100%;margin-bottom:8px;}
 .btn:active{opacity:0.75;}
 .btn-p{background:var(--text);color:var(--bg);border-color:var(--text);}
@@ -336,8 +340,22 @@ function addItem(){
   document.getElementById('iname').value='';document.getElementById('iprice').value='';
   document.getElementById('iname').focus();renderPend();
 }
+function catOpts(sel){
+  const cats=['Fruit & veg','Meat & fish','Dairy & eggs','Tinned & dry','Frozen','Household','Other'];
+  return cats.map(c=>`<option value="${c}" ${c===sel?'selected':''}>${c}</option>`).join('');
+}
 function renderPend(){
-  document.getElementById('ilist').innerHTML=pend.map((it,i)=>`<div class="chip"><div><div class="chip-name">${esc(it.name)}</div><div class="chip-meta">${it.cat}</div></div><div class="chip-r"><div class="chip-price">£${it.price.toFixed(2)}</div><button class="rx" onclick="rmItem(${i})">&#215;</button></div></div>`).join('');
+  document.getElementById('ilist').innerHTML=pend.map((it,i)=>`
+    <div class="chip">
+      <div class="chip-row1">
+        <input class="chip-nin" type="text" value="${esc(it.name)}" onchange="pend[${i}].name=this.value" placeholder="Item name">
+        <button class="rx" onclick="rmItem(${i})">&#215;</button>
+      </div>
+      <div class="chip-row2">
+        <select class="chip-cin" onchange="pend[${i}].cat=this.value">${catOpts(it.cat)}</select>
+        <input class="chip-pin" type="number" step="0.01" min="0" value="${it.price.toFixed(2)}" onchange="pend[${i}].price=parseFloat(this.value)||0" placeholder="£">
+      </div>
+    </div>`).join('');
 }
 function rmItem(i){pend.splice(i,1);renderPend();}
 function clearForm(){pend=[];document.getElementById('store').value='';renderPend();}
