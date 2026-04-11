@@ -141,7 +141,8 @@ code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
       <div id="tsub" class="topbar-sub">Loading...</div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0">
-      <button class="btn btn-sm" onclick="showPanel('sheets')">&#128202; Sheets</button>
+      <button class="btn btn-sm" onclick="refreshData()" id="refresh-btn" title="Reload from sheet">&#8635;</button>
+      <button class="btn btn-sm" onclick="showPanel('sheets')">&#128202;</button>
       <button class="btn btn-sm" onclick="showPanel('setup')">&#128273;</button>
     </div>
   </div>
@@ -304,17 +305,82 @@ let db={receipts:[]},pend=[];
 
 const HIST=[{"id":"20260307000001","store":"Aldi","date":"2026-03-07","items":[{"name":"Toilet cleaner 750ml","price":0.55,"cat":"Household"},{"name":"Toilet cleaner 750ml","price":0.55,"cat":"Household"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Parmesan Reggiano","price":3.19,"cat":"Dairy & eggs"},{"name":"Parmesan Reggiano","price":3.19,"cat":"Dairy & eggs"},{"name":"Mozzarella","price":0.95,"cat":"Dairy & eggs"},{"name":"Mozzarella","price":0.95,"cat":"Dairy & eggs"},{"name":"Extra Mature Cheese 400g","price":2.49,"cat":"Dairy & eggs"},{"name":"Beef mince 5% fat 750g","price":7.15,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Salmon 4-pack","price":6.85,"cat":"Meat & fish"},{"name":"Black Cod","price":4.49,"cat":"Meat & fish"},{"name":"Cod Loins 260g","price":5.49,"cat":"Meat & fish"},{"name":"Cod Loins 260g","price":5.49,"cat":"Meat & fish"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Chickpeas 400g","price":0.49,"cat":"Tinned & dry"},{"name":"Kidney beans 400g","price":0.42,"cat":"Tinned & dry"},{"name":"Kidney beans 400g","price":0.42,"cat":"Tinned & dry"},{"name":"Mixed beans 400g","price":0.69,"cat":"Tinned & dry"},{"name":"Cannellini beans","price":0.45,"cat":"Tinned & dry"},{"name":"Cannellini beans","price":0.45,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Chopped tomatoes","price":0.47,"cat":"Tinned & dry"},{"name":"Passata Rustica","price":1.95,"cat":"Tinned & dry"},{"name":"Passata Rustica","price":1.95,"cat":"Tinned & dry"},{"name":"Passata 500g","price":0.49,"cat":"Tinned & dry"},{"name":"Tomato puree","price":0.59,"cat":"Tinned & dry"},{"name":"Tomato puree","price":0.59,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Stir through sauce","price":1.35,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Sweetcorn 340g","price":0.55,"cat":"Tinned & dry"},{"name":"Pasta","price":1.35,"cat":"Tinned & dry"},{"name":"Pasta","price":1.65,"cat":"Tinned & dry"},{"name":"Pasta","price":2.25,"cat":"Tinned & dry"},{"name":"Egg tagliatelle","price":1.45,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Porridge oats 1kg","price":2.25,"cat":"Tinned & dry"},{"name":"Petits pois 700g","price":1.09,"cat":"Frozen"},{"name":"Petits pois 700g","price":1.09,"cat":"Frozen"},{"name":"Frozen strawberries","price":1.99,"cat":"Frozen"},{"name":"Frozen strawberries","price":1.99,"cat":"Frozen"},{"name":"Frozen blueberries","price":1.99,"cat":"Frozen"},{"name":"Frozen tropical fruit","price":1.99,"cat":"Frozen"},{"name":"Frozen broccoli","price":1.19,"cat":"Frozen"},{"name":"Pine seeds","price":1.69,"cat":"Other"},{"name":"Sunflower seed mix","price":1.15,"cat":"Other"},{"name":"Macadamias pecans","price":2.99,"cat":"Other"},{"name":"Peanut butter 100%","price":3.99,"cat":"Other"},{"name":"Caster sugar 1kg","price":1.09,"cat":"Tinned & dry"},{"name":"Soft sugar 500g","price":1.09,"cat":"Tinned & dry"},{"name":"Soft sugar 500g","price":1.09,"cat":"Tinned & dry"},{"name":"Dishwasher salt","price":1.49,"cat":"Household"},{"name":"Dishwasher salt","price":1.49,"cat":"Household"},{"name":"Grapes mixed","price":1.35,"cat":"Fruit & veg"},{"name":"Mango banana chips","price":1.25,"cat":"Other"}],"total":132.05},{"id":"20260314000001","store":"Aldi","date":"2026-03-14","items":[{"name":"Peppers","price":1.09,"cat":"Fruit & veg"},{"name":"Natural yogurt","price":0.89,"cat":"Dairy & eggs"},{"name":"Stock pots","price":1.29,"cat":"Tinned & dry"},{"name":"Olives","price":0.99,"cat":"Other"},{"name":"Potatoes","price":1.09,"cat":"Fruit & veg"},{"name":"Chestnut mushrooms","price":0.95,"cat":"Fruit & veg"},{"name":"Baby spinach","price":1.15,"cat":"Fruit & veg"},{"name":"Strawberries","price":3.39,"cat":"Fruit & veg"},{"name":"Goats cheese","price":1.99,"cat":"Dairy & eggs"},{"name":"Babycorn","price":0.99,"cat":"Fruit & veg"},{"name":"Limes","price":0.89,"cat":"Fruit & veg"},{"name":"Tomatoes","price":1.09,"cat":"Fruit & veg"},{"name":"Spring onions","price":0.55,"cat":"Fruit & veg"},{"name":"Avocado","price":1.39,"cat":"Fruit & veg"},{"name":"Rice cakes","price":0.99,"cat":"Other"},{"name":"Lettuce","price":0.65,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Bananas","price":0.16,"cat":"Fruit & veg"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Frozen broccoli","price":0.79,"cat":"Frozen"}],"total":22.65},{"id":"20260331000001","store":"Aldi","date":"2026-03-31","items":[{"name":"Macadamias pecans","price":2.99,"cat":"Other"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Grapes mixed","price":1.89,"cat":"Fruit & veg"},{"name":"Chestnut mushrooms","price":0.95,"cat":"Fruit & veg"},{"name":"Baby spinach","price":1.15,"cat":"Fruit & veg"},{"name":"Avocado","price":1.39,"cat":"Fruit & veg"},{"name":"Strawberries","price":2.49,"cat":"Fruit & veg"},{"name":"Goats cheese","price":1.99,"cat":"Dairy & eggs"}],"total":14.74},{"id":"20260402000001","store":"Sainsbury's","date":"2026-04-02","items":[{"name":"Strawberries 400g","price":3.6,"cat":"Fruit & veg"},{"name":"Strawberries 350g","price":3.3,"cat":"Fruit & veg"},{"name":"Beef mince 5% 1kg","price":9.25,"cat":"Meat & fish"},{"name":"Frozen raspberries 315g","price":3.3,"cat":"Frozen"},{"name":"Grapes mixed","price":2.0,"cat":"Fruit & veg"},{"name":"Tomato variety box","price":6.0,"cat":"Fruit & veg"},{"name":"Thai basil","price":0.75,"cat":"Fruit & veg"},{"name":"Bay leaf","price":0.55,"cat":"Fruit & veg"},{"name":"Dill","price":0.9,"cat":"Fruit & veg"},{"name":"Coriander","price":0.75,"cat":"Fruit & veg"},{"name":"Grapefruits x9","price":3.6,"cat":"Fruit & veg"},{"name":"Cooked chicken stock","price":2.9,"cat":"Tinned & dry"},{"name":"Cooked chicken stock","price":2.9,"cat":"Tinned & dry"},{"name":"Bang Bang chilli sauce","price":3.4,"cat":"Other"},{"name":"Free range eggs x15","price":3.5,"cat":"Dairy & eggs"},{"name":"Sparkling water 2L","price":0.9,"cat":"Other"},{"name":"Remedy kombucha","price":2.95,"cat":"Other"}],"total":50.55},{"id":"20260408000001","store":"Lidl","date":"2026-04-08","items":[{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Lactose free milk","price":0.99,"cat":"Dairy & eggs"},{"name":"Bananas bunch","price":0.78,"cat":"Fruit & veg"},{"name":"Bananas bunch","price":0.78,"cat":"Fruit & veg"}],"total":5.52},{"id":"20260410000001","store":"Lidl","date":"2026-04-10","items":[{"name":"Chicken thigh fillet 600g","price":4.59,"cat":"Meat & fish"},{"name":"Deluxe strawberries","price":3.49,"cat":"Fruit & veg"},{"name":"Black grapes punnet","price":1.89,"cat":"Fruit & veg"},{"name":"Coriander large","price":1.09,"cat":"Fruit & veg"},{"name":"Coriander large","price":1.09,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Fresh mint","price":0.5,"cat":"Fruit & veg"},{"name":"Chillies","price":0.79,"cat":"Fruit & veg"},{"name":"Salad trio","price":1.29,"cat":"Fruit & veg"},{"name":"Fat free natural yogurt","price":0.55,"cat":"Dairy & eggs"}],"total":16.28}];
 
+const ITEMS_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vScmqHATp10NrYpNo0z9qBVT1iYq0tT1HFIOTS9v2Ngfl-n5QHb_4k-6P_qLMFSsYfI4r-uSrki46Gj/pub?gid=36366478&single=true&output=csv';
+
 function gsu(){return localStorage.getItem(SUK)||'';}
 function gak(){return localStorage.getItem(AKK)||'';}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const vals=[];let cur='',inQ=false;
+    for(let ch of line){
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    vals.push(cur.trim());
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=(vals[i]||'').replace(/^"|"$/g,''));
+    return obj;
+  });
+}
+
+async function loadFromSheets(){
+  try{
+    const resp=await fetch(ITEMS_CSV+'&t='+Date.now());
+    if(!resp.ok)return false;
+    const text=await resp.text();
+    const rows=parseCSV(text);
+    if(!rows.length)return false;
+
+    // Reconstruct receipts from items rows
+    // Columns: Receipt ID, Date, Store, Item, Category, Price (£)
+    const receiptMap={};
+    for(const row of rows){
+      const id=row['Receipt ID']||row['Receipt ID ']||Object.values(row)[0];
+      const date=row['Date']||Object.values(row)[1];
+      const store=row['Store']||Object.values(row)[2];
+      const name=row['Item']||Object.values(row)[3];
+      const cat=row['Category']||Object.values(row)[4];
+      const price=parseFloat(row['Price (£)']||Object.values(row)[5])||0;
+      if(!id||id==='Receipt ID')continue;
+      if(!receiptMap[id])receiptMap[id]={id,date,store,items:[],total:0};
+      receiptMap[id].items.push({name,cat,price,qty:1,unitPrice:price});
+      receiptMap[id].total=parseFloat((receiptMap[id].total+price).toFixed(2));
+    }
+    const receipts=Object.values(receiptMap).sort((a,b)=>a.date.localeCompare(b.date));
+    if(receipts.length>0){
+      db.receipts=receipts;
+      localStorage.setItem(DBK,JSON.stringify(db));
+      return true;
+    }
+    return false;
+  }catch(e){
+    console.log('Sheet load failed:',e.message);
+    return false;
+  }
+}
 
 async function toSheets(payload){
   const url=gsu();if(!url)return;
   try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});}catch(e){}
 }
 
-function init(){
-  try{const s=localStorage.getItem(DBK);if(s)db=JSON.parse(s);}catch(e){}
-  if(!db.receipts.length){db.receipts=HIST;persist();}
+async function init(){
+  // Show loading state
+  document.getElementById('tsub').textContent='Loading...';
+
+  // Try to load from Google Sheets first (live data)
+  const loadedFromSheet = await loadFromSheets();
+
+  if(!loadedFromSheet){
+    // Fall back to localStorage
+    try{const s=localStorage.getItem(DBK);if(s)db=JSON.parse(s);}catch(e){}
+    if(!db.receipts.length){db.receipts=HIST;persist();}
+  }
+
   const d=new Date(),p=n=>String(n).padStart(2,'0');
   document.getElementById('datein').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
   updateTop();
@@ -510,6 +576,26 @@ function renderInsights(){
   <div class="card"><div class="card-title">Spend by store</div>${se.map((s,i)=>`<div class="br"><div class="bl">${esc(s[0])}</div><div class="bt"><div class="bf2" style="width:${(s[1]/tot*100).toFixed(1)}%;background:${cols[i%cols.length]}"></div></div><div class="bv">£${s[1].toFixed(0)}</div></div>`).join('')}</div>
   <div class="card"><div class="card-title">Spend by category</div><div class="cg">${ce.map(cat=>`<div class="cc"><div class="ccn">${cat[0]}</div><div class="ccv">£${cat[1].toFixed(2)}</div><div class="ccp">${(cat[1]/tot*100).toFixed(0)}% of total</div></div>`).join('')}</div></div>
   ${me.length>1?`<div class="card"><div class="card-title">Monthly spend</div>${me.map(m=>{const label=new Date(m[0]+'-01').toLocaleDateString('en-GB',{month:'short',year:'numeric'});return`<div class="br"><div class="bl">${label}</div><div class="bt"><div class="bf2" style="width:${(m[1]/maxM*100).toFixed(1)}%;background:#3266ad"></div></div><div class="bv">£${m[1].toFixed(0)}</div></div>`;}).join('')}</div>`:''}`;
+}
+
+async function refreshData(){
+  const btn=document.getElementById('refresh-btn');
+  btn.textContent='...';btn.disabled=true;
+  const ok=await loadFromSheets();
+  btn.textContent='&#8635;';btn.disabled=false;
+  if(ok){
+    updateTop();
+    // Re-render whichever panel is active
+    const active=document.querySelector('.panel.active');
+    if(active){
+      const id=active.id.replace('panel-','');
+      if(id==='history')renderHistory();
+      if(id==='prices')renderPrices();
+      if(id==='insights')renderInsights();
+    }
+  } else {
+    alert('Could not load from sheet — check your connection.');
+  }
 }
 
 let editId = null;
