@@ -119,6 +119,18 @@ a{color:var(--blue);}
 .et{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
 .eb{font-size:14px;line-height:1.5;}
 code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal{background:var(--bg);border-radius:var(--rl) var(--rl) 0 0;width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.modal-title{font-size:16px;font-weight:600;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:0 4px;line-height:1;}
+.modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;flex:1;}
+.modal-footer{padding:12px 16px;border-top:0.5px solid var(--border);flex-shrink:0;padding-bottom:calc(12px + var(--sb));}
+.edit-item{background:var(--bg2);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;}
+.edit-item-row1{display:grid;grid-template-columns:1fr 36px;gap:8px;margin-bottom:6px;}
+.edit-item-row2{display:grid;grid-template-columns:1fr 90px;gap:8px;}
+.edit-in{width:100%;background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:14px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;}
+.edit-in:focus{border-color:var(--blue);}
 </style>
 </head>
 <body>
@@ -246,6 +258,35 @@ code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
       </div>
     </div>
 
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="edit-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeEdit()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Edit receipt</div>
+        <button class="modal-close" onclick="closeEdit()">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div class="fr" style="margin-bottom:12px">
+          <div><div style="font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500">Store</div>
+            <select class="edit-in" id="edit-store">
+              <option>Aldi</option><option>Lidl</option><option>Sainsbury's</option>
+              <option>Tesco</option><option>Dunya Supermarket</option><option>Other</option>
+            </select>
+          </div>
+          <div><div style="font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500">Date</div>
+            <input class="edit-in" type="date" id="edit-date">
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px">Items</div>
+        <div id="edit-items"></div>
+        <button class="btn" style="margin-top:4px;font-size:13px;padding:9px" onclick="addEditItem()">+ Add item</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-p" onclick="saveEdit()">Save changes</button>
+      </div>
+    </div>
   </div>
 
   <nav class="bottomnav">
@@ -421,7 +462,7 @@ function renderHistory(){
   const st={};db.receipts.forEach(r=>st[r.store]=(st[r.store]||0)+1);
   const top=Object.entries(st).sort((a,b)=>b[1]-a[1])[0];
   c.innerHTML=`<div class="mg"><div class="m"><div class="ml">Total shops</div><div class="mv">${db.receipts.length}</div></div><div class="m"><div class="ml">Total spent</div><div class="mv">£${tot.toFixed(0)}</div></div><div class="m"><div class="ml">Avg basket</div><div class="mv">£${avg.toFixed(2)}</div></div><div class="m"><div class="ml">Top store</div><div class="mv" style="font-size:14px">${top?top[0]:'—'}</div></div></div>
-  ${sorted.map(r=>`<div class="ri" onclick="togLines('${r.id}')"><div class="rt"><div><div class="rs">${esc(r.store)}</div><div class="rm">${fmtD(r.date)} · ${r.items.length} items</div></div><div class="rv">£${r.total.toFixed(2)}</div></div><div class="rl-lines" id="ll-${r.id}">${r.items.map(i=>`<div class="rl-line"><span>${esc(i.name)} <span style="font-size:11px;color:var(--text3)">${i.cat}</span></span><span>£${i.price.toFixed(2)}</span></div>`).join('')}<button onclick="event.stopPropagation();delReceipt('${r.id}')" class="btn btn-d" style="margin-top:10px;padding:9px;font-size:13px">Delete receipt</button></div></div>`).join('')}`;
+  ${sorted.map(r=>`<div class="ri" onclick="togLines('${r.id}')"><div class="rt"><div><div class="rs">${esc(r.store)}</div><div class="rm">${fmtD(r.date)} · ${r.items.length} items</div></div><div class="rv">£${r.total.toFixed(2)}</div></div><div class="rl-lines" id="ll-${r.id}">${r.items.map(i=>`<div class="rl-line"><span>${esc(i.name)} <span style="font-size:11px;color:var(--text3)">${i.cat}</span></span><span>£${i.price.toFixed(2)}</span></div>`).join('')}<div style="display:flex;gap:8px;margin-top:10px"><button onclick="event.stopPropagation();openEdit('${r.id}')" class="btn" style="flex:1;padding:9px;font-size:13px">Edit</button><button onclick="event.stopPropagation();delReceipt('${r.id}')" class="btn btn-d" style="flex:1;padding:9px;font-size:13px">Delete</button></div></div></div>`).join('')}`;
 }
 function togLines(id){const el=document.getElementById('ll-'+id);el.style.display=el.style.display==='block'?'none':'block';}
 function delReceipt(id){
@@ -460,6 +501,74 @@ function renderInsights(){
   <div class="card"><div class="card-title">Spend by store</div>${se.map((s,i)=>`<div class="br"><div class="bl">${esc(s[0])}</div><div class="bt"><div class="bf2" style="width:${(s[1]/tot*100).toFixed(1)}%;background:${cols[i%cols.length]}"></div></div><div class="bv">£${s[1].toFixed(0)}</div></div>`).join('')}</div>
   <div class="card"><div class="card-title">Spend by category</div><div class="cg">${ce.map(cat=>`<div class="cc"><div class="ccn">${cat[0]}</div><div class="ccv">£${cat[1].toFixed(2)}</div><div class="ccp">${(cat[1]/tot*100).toFixed(0)}% of total</div></div>`).join('')}</div></div>
   ${me.length>1?`<div class="card"><div class="card-title">Monthly spend</div>${me.map(m=>{const label=new Date(m[0]+'-01').toLocaleDateString('en-GB',{month:'short',year:'numeric'});return`<div class="br"><div class="bl">${label}</div><div class="bt"><div class="bf2" style="width:${(m[1]/maxM*100).toFixed(1)}%;background:#3266ad"></div></div><div class="bv">£${m[1].toFixed(0)}</div></div>`;}).join('')}</div>`:''}`;
+}
+
+let editId = null;
+
+function catOpts2(sel){
+  const cats=['Fruit & veg','Meat & fish','Dairy & eggs','Tinned & dry','Frozen','Household','Other'];
+  return cats.map(c=>`<option value="${c}" ${c===sel?'selected':''}>${c}</option>`).join('');
+}
+
+function openEdit(id){
+  const r=db.receipts.find(r=>r.id===id);
+  if(!r)return;
+  editId=id;
+  document.getElementById('edit-store').value=r.store;
+  document.getElementById('edit-date').value=r.date;
+  renderEditItems(r.items);
+  document.getElementById('edit-modal').style.display='flex';
+}
+
+function renderEditItems(items){
+  document.getElementById('edit-items').innerHTML=items.map((it,i)=>`
+    <div class="edit-item">
+      <div class="edit-item-row1">
+        <input class="edit-in" type="text" value="${esc(it.name)}" onchange="updateEditItem(${i},'name',this.value)" placeholder="Item name">
+        <button class="rx" style="font-size:20px" onclick="removeEditItem(${i})">&#215;</button>
+      </div>
+      <div class="edit-item-row2">
+        <select class="edit-in" onchange="updateEditItem(${i},'cat',this.value)">${catOpts2(it.cat)}</select>
+        <input class="edit-in" type="number" step="0.01" min="0" value="${it.price.toFixed(2)}" onchange="updateEditItem(${i},'price',parseFloat(this.value)||0)" placeholder="£">
+      </div>
+    </div>`).join('');
+}
+
+function updateEditItem(i,field,val){
+  const r=db.receipts.find(r=>r.id===editId);
+  if(!r)return;
+  r.items[i][field]=val;
+}
+
+function removeEditItem(i){
+  const r=db.receipts.find(r=>r.id===editId);
+  if(!r)return;
+  r.items.splice(i,1);
+  renderEditItems(r.items);
+}
+
+function addEditItem(){
+  const r=db.receipts.find(r=>r.id===editId);
+  if(!r)return;
+  r.items.push({name:'',price:0,cat:'Other'});
+  renderEditItems(r.items);
+}
+
+function saveEdit(){
+  const r=db.receipts.find(r=>r.id===editId);
+  if(!r)return;
+  r.store=document.getElementById('edit-store').value;
+  r.date=document.getElementById('edit-date').value;
+  r.total=r.items.reduce((s,i)=>s+i.price,0);
+  persist();
+  if(gsu())toSheets({action:'save_receipt',receipt:r});
+  closeEdit();
+  renderHistory();
+}
+
+function closeEdit(){
+  document.getElementById('edit-modal').style.display='none';
+  editId=null;
 }
 
 init();
