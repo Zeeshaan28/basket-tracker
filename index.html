@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -553,13 +551,24 @@ function renderPrices(){
   const c=document.getElementById('pcontent');
   if(db.receipts.length<2){c.innerHTML='<div class="es"><div class="ei">&#128202;</div><div class="et">Need more data</div><div class="eb">Add receipts from at least two shops to start tracking price changes.</div></div>';return;}
   const hist={};
-  db.receipts.forEach(r=>r.items.forEach(item=>{const k=item.name.toLowerCase().replace(/\s+/g,' ').trim();if(!hist[k])hist[k]={name:item.name,entries:[]};hist[k].entries.push({date:r.date,store:r.store,price:item.price});}));
-  const tracked=Object.values(hist).filter(i=>i.entries.length>1).map(i=>{const s=i.entries.sort((a,b)=>a.date>b.date?1:-1);const f=s[0],l=s[s.length-1],p=((l.price-f.price)/f.price)*100;return{...i,f,l,p};}).sort((a,b)=>Math.abs(b.p)-Math.abs(a.p));
+  db.receipts.forEach(r=>r.items.forEach(item=>{
+    const k=item.name.toLowerCase().replace(/\s+/g,' ').trim();
+    if(!hist[k])hist[k]={name:item.name,entries:[]};
+    // Always use unit price for tracking — fall back to item price if unitPrice not set
+    const unitPrice=item.unitPrice!=null?item.unitPrice:item.price;
+    hist[k].entries.push({date:r.date,store:r.store,unitPrice,qty:item.qty||1,total:item.price});
+  }));
+  const tracked=Object.values(hist).filter(i=>i.entries.length>1).map(i=>{
+    const s=i.entries.sort((a,b)=>a.date>b.date?1:-1);
+    const f=s[0],l=s[s.length-1];
+    const p=((l.unitPrice-f.unitPrice)/f.unitPrice)*100;
+    return{...i,f,l,p};
+  }).sort((a,b)=>Math.abs(b.p)-Math.abs(a.p));
   const alerts=tracked.filter(i=>Math.abs(i.p)>=5);
   const singles=Object.values(hist).filter(i=>i.entries.length===1).length;
   let html='';
-  if(alerts.length)html+=`<div class="card"><div class="card-title">&#9888; Price alerts — 5%+ change</div>${alerts.map(a=>`<div class="ai"><div class="adot" style="background:${a.p>0?'var(--red)':'var(--green)'}"></div><div class="ainfo"><div class="an">${esc(a.name)}</div><div class="am">£${a.f.price.toFixed(2)} → £${a.l.price.toFixed(2)} · ${a.f.store}${a.f.store!==a.l.store?' → '+a.l.store:''}</div></div><span class="badge ${a.p>0?'bu':'bd'}">${a.p>0?'+':''}${a.p.toFixed(1)}%</span></div>`).join('')}</div>`;
-  if(tracked.length)html+=`<div class="card"><div class="card-title">All tracked prices</div>${tracked.map(i=>`<div class="pr"><div><div class="prn">${esc(i.name)}</div><div class="prm">${i.entries.length} records · ${i.f.store}${i.f.store!==i.l.store?' vs '+i.l.store:''}</div></div><div class="prr"><div style="text-align:right"><div class="po">£${i.f.price.toFixed(2)}</div><div class="pn">£${i.l.price.toFixed(2)}</div></div><span class="badge ${i.p>2?'bu':i.p<-2?'bd':'bf'}">${i.p>0?'+':''}${i.p.toFixed(1)}%</span></div></div>`).join('')}</div>`;
+  if(alerts.length)html+=`<div class="card"><div class="card-title">&#9888; Price alerts — 5%+ change</div>${alerts.map(a=>`<div class="ai"><div class="adot" style="background:${a.p>0?'var(--red)':'var(--green)'}"></div><div class="ainfo"><div class="an">${esc(a.name)}</div><div class="am">£${a.f.unitPrice.toFixed(2)}/ea → £${a.l.unitPrice.toFixed(2)}/ea · ${a.f.store}${a.f.store!==a.l.store?' → '+a.l.store:''}</div></div><span class="badge ${a.p>0?'bu':'bd'}">${a.p>0?'+':''}${a.p.toFixed(1)}%</span></div>`).join('')}</div>`;
+  if(tracked.length)html+=`<div class="card"><div class="card-title">All tracked prices</div>${tracked.map(i=>`<div class="pr"><div><div class="prn">${esc(i.name)}</div><div class="prm">${i.entries.length} records · ${i.f.store}${i.f.store!==i.l.store?' vs '+i.l.store:''} · qty ${i.l.qty}</div></div><div class="prr"><div style="text-align:right"><div class="po">£${i.f.unitPrice.toFixed(2)}/ea</div><div class="pn">£${i.l.unitPrice.toFixed(2)}/ea</div></div><span class="badge ${i.p>2?'bu':i.p<-2?'bd':'bf'}">${i.p>0?'+':''}${i.p.toFixed(1)}%</span></div></div>`).join('')}</div>`;
   else html+='<div class="es"><div class="ei">&#128203;</div><div class="et">No repeat items yet</div><div class="eb">Price tracking kicks in when you buy the same item on separate shops.</div></div>';
   if(singles)html+=`<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">${singles} item${singles>1?'s':''} seen once — tracked when repurchased.</div>`;
   c.innerHTML=html;
