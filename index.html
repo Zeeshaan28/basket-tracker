@@ -217,6 +217,8 @@ code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
         <div id="shres" style="font-size:13px;min-height:18px;margin-bottom:8px"></div>
         <button class="btn btn-w" id="impbtn" onclick="importHistory()" style="display:none">&#128190; Import all my historical receipts</button>
         <div id="impres" style="font-size:13px;min-height:18px;margin-bottom:8px"></div>
+        <button class="btn btn-w" id="syncbtn" onclick="syncAll()" style="display:none">&#8593; Sync all local receipts to sheet</button>
+        <div id="syncres" style="font-size:13px;min-height:18px;margin-bottom:8px"></div>
         <button class="btn" onclick="showPanel('add')">Done</button>
         <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.6">Due to browser security rules the app sends data silently — it can't confirm receipt. Data will appear in your sheet within a few seconds of saving.</p>
       </div>
@@ -275,7 +277,7 @@ function init(){
   document.getElementById('datein').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
   updateTop();
   document.getElementById('apiw').style.display=gak()?'none':'block';
-  const su=gsu();if(su){document.getElementById('shurl').value=su;document.getElementById('impbtn').style.display='block';}
+  const su=gsu();if(su){document.getElementById('shurl').value=su;document.getElementById('impbtn').style.display='block';document.getElementById('syncbtn').style.display='block';}
 }
 
 function persist(){localStorage.setItem(DBK,JSON.stringify(db));updateTop();}
@@ -312,6 +314,7 @@ function saveSheetUrl(){
   r.style.color='var(--green-text)';
   r.textContent='Saved. New receipts will sync automatically.';
   document.getElementById('impbtn').style.display='block';
+  document.getElementById('syncbtn').style.display='block';
   updateTop();
 }
 
@@ -327,6 +330,21 @@ async function importHistory(){
   btn.disabled=false;btn.textContent='&#128190; Import all my historical receipts';
   res.style.color='var(--green-text)';
   res.textContent='Done! Check your Google Sheet — all 6 receipts should appear within a minute.';
+}
+
+async function syncAll(){
+  const btn=document.getElementById('syncbtn'),res=document.getElementById('syncres');
+  btn.disabled=true;btn.textContent='Syncing...';
+  res.style.color='var(--text2)';
+  const receipts=db.receipts;
+  for(let i=0;i<receipts.length;i++){
+    res.textContent=`Syncing receipt ${i+1} of ${receipts.length}...`;
+    await toSheets({action:'save_receipt',receipt:receipts[i]});
+    await new Promise(r=>setTimeout(r,400));
+  }
+  btn.disabled=false;btn.textContent='&#8593; Sync all local receipts to sheet';
+  res.style.color='var(--green-text)';
+  res.textContent=`Done — ${receipts.length} receipt${receipts.length!==1?'s':''} synced. Check your sheet.`;
 }
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
