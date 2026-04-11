@@ -141,7 +141,7 @@ code{font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:4px;}
       <div id="tsub" class="topbar-sub">Loading...</div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0">
-      <button class="btn btn-sm" onclick="refreshData()" id="refresh-btn" title="Reload from sheet">&#8635;</button>
+      <button class="btn btn-sm" onclick="refreshData()" id="refresh-btn" title="Reload from sheet">↻</button>
       <button class="btn btn-sm" onclick="showPanel('sheets')">&#128202;</button>
       <button class="btn btn-sm" onclick="showPanel('setup')">&#128273;</button>
     </div>
@@ -582,7 +582,7 @@ async function refreshData(){
   const btn=document.getElementById('refresh-btn');
   btn.textContent='...';btn.disabled=true;
   const ok=await loadFromSheets();
-  btn.textContent='&#8635;';btn.disabled=false;
+  btn.textContent='↻';btn.disabled=false;
   if(ok){
     updateTop();
     // Re-render whichever panel is active
