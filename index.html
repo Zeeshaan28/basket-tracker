@@ -336,18 +336,20 @@ async function loadFromSheets(){
     if(!rows.length)return false;
 
     // Reconstruct receipts from items rows
-    // Columns: Receipt ID, Date, Store, Item, Category, Price (£)
+    // Columns: Receipt ID, Date, Store, Item, Category, Price (£), Qty, Unit Price (£)
     const receiptMap={};
     for(const row of rows){
-      const id=row['Receipt ID']||row['Receipt ID ']||Object.values(row)[0];
+      const id=row['Receipt ID']||Object.values(row)[0];
       const date=row['Date']||Object.values(row)[1];
       const store=row['Store']||Object.values(row)[2];
       const name=row['Item']||Object.values(row)[3];
       const cat=row['Category']||Object.values(row)[4];
       const price=parseFloat(row['Price (£)']||Object.values(row)[5])||0;
+      const qty=parseFloat(row['Qty']||Object.values(row)[6])||1;
+      const unitPrice=parseFloat(row['Unit Price (£)']||Object.values(row)[7])||price;
       if(!id||id==='Receipt ID')continue;
       if(!receiptMap[id])receiptMap[id]={id,date,store,items:[],total:0};
-      receiptMap[id].items.push({name,cat,price,qty:1,unitPrice:price});
+      receiptMap[id].items.push({name,cat,price,qty,unitPrice});
       receiptMap[id].total=parseFloat((receiptMap[id].total+price).toFixed(2));
     }
     const receipts=Object.values(receiptMap).sort((a,b)=>a.date.localeCompare(b.date));
@@ -500,7 +502,7 @@ async function saveReceipt(){
   if(!pend.length){alert('Please add at least one item.');return;}
   const r={id:Date.now().toString(),store,date,items:[...pend],total:pend.reduce((s,i)=>s+i.price,0)};
   db.receipts.push(r);persist();clearForm();
-  if(gsu())toSheets({action:'save_receipt',receipt:r});
+  if(gsu())toSheets({action:'update_receipt',receipt:r});
   showPanel('history');
 }
 
@@ -673,7 +675,7 @@ function saveEdit(){
   r.date=document.getElementById('edit-date').value;
   r.total=r.items.reduce((s,i)=>s+i.price,0);
   persist();
-  if(gsu())toSheets({action:'save_receipt',receipt:r});
+  if(gsu())toSheets({action:'update_receipt',receipt:r});
   closeEdit();
   renderHistory();
 }
